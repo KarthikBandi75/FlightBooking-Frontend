@@ -262,7 +262,7 @@ function Flights() {
           <motion.div variants={formVariants} transition={{ delay: 0.2 }}>
             <label className="block text-sm font-semibold text-[#1F2A44] mb-1">To</label>
             <AutoSuggest
-              label="To (e.g., BOM)"
+              label="To (e.g., HYD)"
               value={to}
               onChange={setTo}
               token={token}
