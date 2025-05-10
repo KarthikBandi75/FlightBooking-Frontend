@@ -126,7 +126,6 @@ function Flights() {
   useEffect(() => {
     if (!token) {
       clearData();
-      toast.error("Please login to search flights");
       navigate("/login");
       return;
     }
