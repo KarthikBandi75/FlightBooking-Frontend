@@ -71,6 +71,8 @@ function Navbar() {
   const handleLogout = () => {
     setToken("");
     localStorage.removeItem("token");
+    sessionStorage.removeItem("flightSearch");
+    sessionStorage.removeItem("flightsData");
     navigate("/login");
     setIsMenuOpen(false);
   };
