@@ -91,7 +91,7 @@ function Flights() {
         );
         sessionStorage.setItem("flightsData", JSON.stringify(response.data));
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to fetch flights. Please try again.");
+        toast.error(error.response?.data?.message || "Failed to fetch flights.Please Enter Only Airport Codes");
       } finally {
         setLoading(false);
         if (isInitialLoad) {
