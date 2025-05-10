@@ -57,7 +57,7 @@ function FlightCard({ flight, filterAirline, onBook, onBookingAttempt, userData,
     e.stopPropagation();
     try {
       const response = await axios.post(
-        "http://localhost:7000/api/flights/attempt",
+        "https://flightbookings-backend.onrender.com/api/flights/attempt",
         { flightId: flight.flightId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -77,7 +77,7 @@ function FlightCard({ flight, filterAirline, onBook, onBookingAttempt, userData,
     setIsBooking(true);
     try {
       const response = await axios.post(
-        "http://localhost:7000/api/user/book",
+        "https://flightbookings-backend.onrender.com/api/user/book",
         { flightId: flight.flightId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

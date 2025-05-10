@@ -76,7 +76,7 @@ function Flights() {
       const formattedDate = departureDate.toISOString().split("T")[0];
       try {
         const response = await axios.get(
-          `http://localhost:7000/api/flights?origin=${from}&destination=${to}&departureDate=${formattedDate}`,
+          `https://flightbookings-backend.onrender.com/api/flights?origin=${from}&destination=${to}&departureDate=${formattedDate}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (response.data.length !== 10) {

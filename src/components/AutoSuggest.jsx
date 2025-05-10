@@ -22,7 +22,7 @@ function AutoSuggest({ label, value, onChange, token }) {
 
       try {
         const response = await axios.get(
-          `http://localhost:7000/api/airports?keyword=${query}`,
+          `https://flightbookings-backend.onrender.com/api/airports?keyword=${query}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setSuggestions(response.data);

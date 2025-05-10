@@ -39,7 +39,7 @@ function Bookings() {
     const fetchBookings = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:7000/api/user/bookings", {
+        const response = await axios.get("https://flightbookings-backend.onrender.com/api/user/bookings", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBookings(response.data);

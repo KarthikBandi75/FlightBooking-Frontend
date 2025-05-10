@@ -26,7 +26,7 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:7000/api/auth/forgot-password", { email });
+      const response = await axios.post("https://flightbookings-backend.onrender.com/api/auth/forgot-password", { email });
       toast.success(response.data.message);
       setStep("otp");
     } catch (error) {
@@ -45,7 +45,7 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:7000/api/auth/verify-forgot-otp", {
+      const response = await axios.post("https://flightbookings-backend.onrender.com/api/auth/verify-forgot-otp", {
         email,
         otp,
       });
@@ -71,7 +71,7 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:7000/api/auth/reset-password", {
+      const response = await axios.post("https://flightbookings-backend.onrender.com/api/auth/reset-password", {
         email,
         newPassword,
       });

@@ -16,7 +16,7 @@ const AuthProvider = ({ children }) => {
 
     setIsLoadingProfile(true);
     try {
-      const { data } = await axios.get("http://localhost:7000/api/user/profile", {
+      const { data } = await axios.get("https://flightbookings-backend.onrender.com/api/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (data.user) {

@@ -21,7 +21,7 @@ function Signup() {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:7000/api/auth/signup", {
+      await axios.post("https://flightbookings-backend.onrender.com/api/auth/signup", {
         name,
         email,
         password,

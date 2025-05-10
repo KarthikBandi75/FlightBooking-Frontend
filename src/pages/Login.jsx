@@ -22,7 +22,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:7000/api/auth/login", {
+      const response = await axios.post("https://flightbookings-backend.onrender.com/api/auth/login", {
         email,
         password,
       });

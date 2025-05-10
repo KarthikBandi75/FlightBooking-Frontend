@@ -24,7 +24,7 @@ function VerifyOtp() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:7000/api/auth/verify-otp", {
+      const response = await axios.post("https://flightbookings-backend.onrender.com/api/auth/verify-otp", {
         email,
         otp,
       });
@@ -42,7 +42,7 @@ function VerifyOtp() {
     setResendLoading(true);
 
     try {
-      await axios.post("http://localhost:7000/api/auth/forgot-password", {
+      await axios.post("https://flightbookings-backend.onrender.com/api/auth/forgot-password", {
         email,
       });
       toast.success("New OTP sent to your email!");
