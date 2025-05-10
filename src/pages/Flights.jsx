@@ -56,6 +56,27 @@ function Flights() {
   const [departureTimeRange, setDepartureTimeRange] = useState(["00:00", "23:59"]);
   const [sortBy, setSortBy] = useState("price");
 
+  const clearData = useCallback(() => {
+    setFrom("");
+    setTo("");
+    setDepartureDate(() => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return tomorrow;
+    });
+    setFilterAirline("");
+    setFlights([]);
+    setAvailableAirlines([]);
+    sessionStorage.removeItem("flightSearch");
+    sessionStorage.removeItem("flightsData");
+    setHasLoadedInitialSearch(false);
+    setShowFilters(false);
+    setPriceRange([0, 50000]);
+    setDurationRange([0, 24]);
+    setDepartureTimeRange(["00:00", "23:59"]);
+    setSortBy("price");
+  }, []);
+
   const handleSearch = useCallback(
     async (e, isInitialLoad = false) => {
       e.preventDefault();
@@ -91,7 +112,7 @@ function Flights() {
         );
         sessionStorage.setItem("flightsData", JSON.stringify(response.data));
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to fetch flights.Please Enter Only Airport Codes");
+        toast.error(error.response?.data?.message || "Failed to fetch flights. Please Enter Only Airport Codes");
       } finally {
         setLoading(false);
         if (isInitialLoad) {
@@ -103,34 +124,42 @@ function Flights() {
   );
 
   useEffect(() => {
-    let isMounted = true;
     if (!token) {
+      clearData();
       toast.error("Please login to search flights");
       navigate("/login");
       return;
     }
 
+   
+    return () => {
+      clearData();
+    };
+  }, [token, navigate, clearData]);
+
+  useEffect(() => {
+    let isMounted = true;
+    
     if (location.pathname === "/flights" && !isLoadingProfile && !hasLoadedInitialSearch) {
       const savedSearch = sessionStorage.getItem("flightSearch");
       const savedFlights = sessionStorage.getItem("flightsData");
-      if (savedSearch) {
-        const { from: savedFrom, to: savedTo, departureDate: savedDate } = JSON.parse(savedSearch);
-        if (savedFrom && savedTo && savedDate) {
-          if (savedFrom !== from) setFrom(savedFrom);
-          if (savedTo !== to) setTo(savedTo);
-          if (new Date(savedDate).getTime() !== departureDate.getTime()) {
+      
+      if (savedSearch && savedFlights) {
+        try {
+          const { from: savedFrom, to: savedTo, departureDate: savedDate } = JSON.parse(savedSearch);
+          
+          if (isMounted) {
+            setFrom(savedFrom);
+            setTo(savedTo);
             setDepartureDate(new Date(savedDate));
-          }
-
-          if (savedFlights && isMounted) {
-            const parsedFlights = JSON.parse(savedFlights);
-            setFlights(parsedFlights);
-            const airlines = [...new Set(parsedFlights.map(f => f.airline))];
+            setFlights(JSON.parse(savedFlights));
+            const airlines = [...new Set(JSON.parse(savedFlights).map(f => f.airline))];
             setAvailableAirlines(airlines);
             setHasLoadedInitialSearch(true);
-          } else if (isMounted) {
-            handleSearch({ preventDefault: () => {} }, true);
           }
+        } catch (error) {
+          console.error("Error parsing saved flight data:", error);
+          clearData();
         }
       }
     }
@@ -138,27 +167,15 @@ function Flights() {
     return () => {
       isMounted = false;
     };
-  }, [token, navigate, location.pathname, isLoadingProfile, hasLoadedInitialSearch, from, to, departureDate, handleSearch]);
+  }, [token, location.pathname, isLoadingProfile, hasLoadedInitialSearch, clearData]);
 
   useEffect(() => {
     return () => {
       if (location.pathname !== "/flights") {
-        sessionStorage.removeItem("flightSearch");
-        sessionStorage.removeItem("flightsData");
-        setFlights([]);
-        setFrom("");
-        setTo("");
-        setDepartureDate(() => {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          return tomorrow;
-        });
-        setFilterAirline("");
-        setAvailableAirlines([]);
-        setHasLoadedInitialSearch(false);
+        clearData();
       }
     };
-  }, [location.pathname]);
+  }, [location.pathname, clearData]);
 
   const refreshFlightPrice = useCallback((flightId, updatedPrice) => {
     setFlights((prevFlights) => {
@@ -183,27 +200,6 @@ function Flights() {
     },
     [setUserData]
   );
-
-  const clearData = useCallback(() => {
-    setFrom("");
-    setTo("");
-    setDepartureDate(() => {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      return tomorrow;
-    });
-    setFilterAirline("");
-    setFlights([]);
-    setAvailableAirlines([]);
-    sessionStorage.removeItem("flightSearch");
-    sessionStorage.removeItem("flightsData");
-    setHasLoadedInitialSearch(false);
-    setShowFilters(false);
-    setPriceRange([0, 50000]);
-    setDurationRange([0, 24]);
-    setDepartureTimeRange(["00:00", "23:59"]);
-    setSortBy("price");
-  }, []);
 
   const formatTime = (isoString) => {
     if (!isoString) return "N/A";
@@ -244,7 +240,9 @@ function Flights() {
       className="min-h-screen pt-7 px-5 sm:px-6 lg:px-8 bg-[#F4F6F8]"
     >
       <div className="max-w-6xl mx-auto py-8">
-        <h2 className="text-3xl font-bold text-[#1F2A44] mb-6 ">Book Your Flight</h2>
+        <h2 className="text-3xl font-bold text-[#1F2A44] mb-6">Book Your Flight</h2>
+        
+       
         <form
           onSubmit={(e) => handleSearch(e, false)}
           className="bg-white shadow-sm rounded-lg p-6 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
@@ -259,6 +257,7 @@ function Flights() {
               className="border border-gray-200 p-2 rounded-lg w-full bg-white focus:ring-2 focus:ring-[#00A69C] focus:border-transparent text-[#6B7280] text-sm"
             />
           </motion.div>
+
           <motion.div variants={formVariants} transition={{ delay: 0.2 }}>
             <label className="block text-sm font-semibold text-[#1F2A44] mb-1">To</label>
             <AutoSuggest
@@ -269,6 +268,7 @@ function Flights() {
               className="border border-gray-200 p-2 rounded-lg w-full bg-white focus:ring-2 focus:ring-[#00A69C] focus:border-transparent text-[#6B7280] text-sm"
             />
           </motion.div>
+
           <motion.div variants={formVariants} transition={{ delay: 0.3 }}>
             <label className="block text-sm font-semibold text-[#1F2A44] mb-1">Departure Date</label>
             <div className="relative">
@@ -284,6 +284,7 @@ function Flights() {
               <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#6B7280]" size={16} />
             </div>
           </motion.div>
+
           <motion.div variants={formVariants} transition={{ delay: 0.4 }}>
             <label className="block text-sm font-semibold text-[#1F2A44] mb-1">Filter by Airline</label>
             <select
@@ -297,6 +298,7 @@ function Flights() {
               ))}
             </select>
           </motion.div>
+
           <motion.div
             variants={formVariants}
             transition={{ delay: 0.5 }}
@@ -310,7 +312,7 @@ function Flights() {
               {loading ? (
                 <FiLoader className="animate-spin" size={16} />
               ) : (
-                <FiSearch  size={16} />
+                <FiSearch size={16} />
               )}
               Search Flights
             </button>
@@ -324,7 +326,7 @@ function Flights() {
           </motion.div>
         </form>
 
-       
+        
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-[#1F2A44]">
@@ -359,7 +361,7 @@ function Flights() {
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className=" text-sm font-medium text-[#1F2A44] mb-2 flex items-center gap-1">
+                  <label className="text-sm font-medium text-[#1F2A44] mb-2 flex items-center gap-1">
                     <FiDollarSign size={14} /> Price Range
                   </label>
                   <div className="flex items-center gap-2">
@@ -389,7 +391,7 @@ function Flights() {
                 </div>
 
                 <div>
-                  <label className=" text-sm font-medium text-[#1F2A44] mb-2 flex items-center gap-1">
+                  <label className="text-sm font-medium text-[#1F2A44] mb-2 flex items-center gap-1">
                     <FiClock size={14} /> Duration (hours)
                   </label>
                   <div className="flex items-center gap-2">
@@ -419,7 +421,7 @@ function Flights() {
                 </div>
 
                 <div>
-                  <label className=" text-sm font-medium text-[#1F2A44] mb-2 flex items-center gap-1">
+                  <label className="text-sm font-medium text-[#1F2A44] mb-2 flex items-center gap-1">
                     <FiTrendingUp size={14} /> Departure Time
                   </label>
                   <div className="grid grid-cols-2 gap-2">
